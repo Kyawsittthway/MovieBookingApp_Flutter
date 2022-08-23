@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/pages/checkout_page.dart';
+import 'package:movie_booking_app/pages/chose_time_cinema.dart';
+import 'package:movie_booking_app/pages/food_and_beverage_page.dart';
+import 'package:movie_booking_app/pages/home_page.dart';
+import 'package:movie_booking_app/pages/location_page.dart';
 import 'package:movie_booking_app/pages/login_page.dart';
+import 'package:movie_booking_app/pages/movie_detail_page.dart';
+import 'package:movie_booking_app/pages/movie_search_page.dart';
+import 'package:movie_booking_app/pages/otp_page.dart';
 import 'package:movie_booking_app/pages/welcome_page.dart';
 
 void main() {
@@ -15,7 +23,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
-        home: LoginPage()
+        home: CheckOutPage()
     );
   }
 }

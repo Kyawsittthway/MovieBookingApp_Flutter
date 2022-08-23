@@ -1,5 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/common_widgets_view/size_box_h30.dart';
+import 'package:movie_booking_app/common_widgets_view/size_box_r12.dart';
+import 'package:movie_booking_app/pages/home_page.dart';
+import 'package:movie_booking_app/pages/otp_page.dart';
+import 'package:movie_booking_app/resources/colors.dart';
+import 'package:movie_booking_app/resources/dimens.dart';
+import 'package:movie_booking_app/resources/fonts.dart';
+import 'package:movie_booking_app/resources/strings.dart';
+
+import '../common_widgets_view/size_box_h12.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -18,141 +28,131 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     String? dropDownValue = countryCodes[0];
     return Scaffold(
-        body: Container(
-      color: Colors.black,
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SafeArea(
-              child: Container(
-            height: 0.0,
-          )),
-          Container(
-            child: Image.asset('assets/loginLogo.png'),
-          ),
-          SizedBox(
-            height: 96,
-          ),
-          Text(
-            "Verify Your Phone Number",
-            style: TextStyle(
-              color: Colors.white,
-              fontWeight: FontWeight.w500,
-              fontSize: 24,
-              fontFamily: 'DM Sans',
-            ),
-          ),
-          SizedBox(
-            height: 12,
-          ),
-          Text(
-            "We will send a 6-digits sms code\n to verify your phone number.",
-            textAlign: TextAlign.center,
-            style: TextStyle(
-                color: Colors.grey,
-                fontSize: 16,
-                fontFamily: 'DM Sans'
-            ),
-          ),
-          SizedBox(
-            height: 12,
-          ),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children:[
-           DropdownButton(
-              onChanged: (String? newValue) {
-                setState(() {
-                  dropDownValue = newValue!;
-                });
-              },
-              selectedItemBuilder: (BuildContext context) { //<-- SEE HERE
-                return <String>['Car', 'Train', 'Bus', 'Flight']
-                    .map((String value) {
-                  return Text(
-                    dropDownValue!,
-                    style:  TextStyle(
-                        color: Colors.blue,
-                        fontSize: 30
-                    ),
-                  );
-                }).toList();
-              },
-              items: <String>['Car', 'Train', 'Bus', 'Flight']
-                  .map<DropdownMenuItem<String>>((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(
-                    value,
-                    style: TextStyle(
-                      color: Colors.black,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-              SizedBox(
-                width: 12,
-              ),
+      body: Container(
+        height: double.infinity,
+        color: PRIMARY_BACKGROUND_COLOR,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SafeArea(
+                  child: Container(
+                height: 0.0,
+              )),
               Container(
-                width: 200,
-                child: TextFormField(
-                  keyboardType: TextInputType.number,style: TextStyle(
-                  color:Colors.white,
+                child: Image.asset('assets/icons/loginLogo.png'),
+              ),
+              SizedBox(
+                height: 96,
+              ),
+              Text(
+                VERIFY_PHONE_NUMBER,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                  fontSize: TITLE_FONT_SIZE,
+                  fontFamily: DEFAULT_FONT,
                 ),
-                  decoration: InputDecoration(
-
-                    border: UnderlineInputBorder(
-                    ),
-
-                    hintText: "Mobile Phone",
-                    hintStyle: TextStyle(
-                      color:Colors.grey,
-
-                    ),
-                  ),
-                )
-              )
-    ]
-          ),
-          SizedBox(height: 30,),
-          Container(
-
-            child: ElevatedButton(
-              child: Text("Verify your phone number"),
-              onPressed: (){},
-              style: ElevatedButton.styleFrom(
-                primary:Colors.green,
-                onPrimary: Colors.black
-
-              )
-            ),
-          ),
-          SizedBox(height: 30,),
-          Container(
-
-            child: ElevatedButton(
-                child: Row(
+              ),
+              SizeBoxH12(),
+              Text(
+                SEND_DIGIT_CODE,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: NORMAL_FONT_SIZE_2X,
+                    fontFamily: DEFAULT_FONT),
+              ),
+              SizeBoxH12(),
+              Row(
                   mainAxisSize: MainAxisSize.min,
-                  children:[
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    DropdownButton(
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          dropDownValue = newValue!;
+                        });
+                      },
+                      items: countryCodes
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(
+                            value,
+                            style: TextStyle(
+                              color: Colors.black,
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                    SizeBoxR12(),
+                    Container(
+                        width: 200,
+                        child: TextFormField(
+                          keyboardType: TextInputType.number,
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                          decoration: InputDecoration(
+                            border: UnderlineInputBorder(),
+                            hintText: MOBILE_PHONE_HINT_TEXT,
+                            hintStyle: TextStyle(
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ))
+                  ]),
+              SizeBoxH30(),
+              Container(
+                width: LOGIN_VIEW_BUTTON_WIDTH,
+                child: ElevatedButton(
+                    child: Text(VERIFY_PHONE_NUMBER),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) =>  OTPpage()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                        primary: GREEN_BUTTON_COLOR, onPrimary: Colors.black)),
+              ),
+              SizeBoxH30(),
+              Container(
+                width: LOGIN_VIEW_BUTTON_WIDTH,
+                child: ElevatedButton(
+                  child: Row(mainAxisSize: MainAxisSize.min, children: [
                     Icon(Icons.g_mobiledata),
-                    Text("Verify your phone number"),
-
-  ]
-
+                    Text(CONTINUE_WITH_GOOGLE_TEXT),
+                  ]),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) =>  HomePage()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                      primary: Colors.white, onPrimary: Colors.black),
                 ),
-                onPressed: (){},
-                style: ElevatedButton.styleFrom(
-                    primary:Colors.white,
-                    onPrimary: Colors.black
-
-                )
-            ),
-          )
-        ],
+              ),
+            ],
+          ),
+        ),
       ),
-    ));
+      bottomNavigationBar: SafeArea(
+        child: Container(
+          padding: EdgeInsets.only(
+            left: 20.0,
+          ),
+          color: PRIMARY_BACKGROUND_COLOR,
+          child: Text(
+            LOGIN_PAGE_FOOTER_TEXT,
+            style: TextStyle(color: LOGIN_FOOTER_TEXT_COLOR),
+          ),
+        ),
+      ),
+    );
   }
 }
