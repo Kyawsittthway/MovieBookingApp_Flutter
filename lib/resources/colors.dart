@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 const PRIMARY_BACKGROUND_COLOR  = Color.fromRGBO(19,19,19,1);
+const PRIMARY_BACKGROUND_COLOR_LOW_OPACITY  = Color.fromRGBO(19,19,19,0.5);
 const HOMEPAGE_APP_BAR_COLOR = Color.fromRGBO(17, 17, 17, 1);
 
 const DIVIDER_COLOR1 =Color.fromRGBO (136, 136, 136, 1);
@@ -13,6 +14,7 @@ const LOGIN_FOOTER_TEXT_COLOR = Color.fromRGBO(74, 74, 75, 1);
 //Location Page
 const GRADIENT_COMPONENT_COLOR1 = Color.fromRGBO(102, 102, 102, 0.8);
 const GRADIENT_COMPONENT_COLOR2 = Color.fromRGBO(85, 85, 85, 0.4);
+
 const SEARCH_BAR_HINT_TEXT_COLOR = Color.fromRGBO(158, 158, 158, 1);
 const NAVIGATION_ICON_COLOR = Color.fromRGBO(59, 59, 59, 1);
 const CITY_HEADING_COLOR = Color.fromRGBO(242, 242, 242, 1);
@@ -50,6 +52,7 @@ const CINEMA_FILLING_FAST_COLOR  = Color.fromRGBO(255, 122, 0, 1);
 const CINEMA_ALLMOST_FULL_COLOR  = Color.fromRGBO(255, 0, 184, 1);
 const CINEMA_INDICATOR_BACKGROUND_COLOR  = Color.fromRGBO(34, 34, 34, 1);
 const CINEMA_FEATURES_COLOR = Color.fromRGBO(170, 170, 170, 1);
+const DIVIDER_COLOR = Color.fromRGBO(85, 85, 85, 1);
 
 //Food and Beverage
 const FNB_GRADIENT_COLOR1 = Color.fromRGBO(102, 102, 102, 0.8) ;
@@ -57,4 +60,17 @@ const FNB_GRADIENT_COLOR2 = Color.fromRGBO(51, 51, 51, 0.4);
 
 //Checkout Page
 const TICKET_POLICY_COLOR = Color.fromRGBO(255, 107, 0, 1);
+const CHECKOUT_PAGE_GRADIENT_COLORR1 = Color.fromRGBO(68, 68, 68, 1);
+const CHECKOUT_PAGE_GRADIENT_COLORR2 = Color.fromRGBO(34, 34, 34, 1);
+const PAYMENT_CONTAINER_BORDER = Color.fromRGBO(255, 255, 255, 0.25);
+
+//Booking Success Page
+const BOOKING_SUCCESS_PAGE_BACKGROUND_COLOR = Color.fromRGBO(0, 0, 0, 0.9);
+
+//Ticket Confirmation Page
+const TICKET_CONFIRMATION_PAGE_GRADIENT_COLOR1 = Color.fromRGBO(98, 98, 98, 1);
+const TICKET_CONFIRMATION_PAGE_GRADIENT_COLOR2 = Color.fromRGBO(38, 38, 38, 0);
+const TICKET_CONFIRMATION_PAGE_GRADIENT_COLOR3 = Color.fromRGBO(39, 39, 39, 0.45);
+const TICKET_CONFIRMATION_PAGE_GRADIENT_COLOR4 = Color.fromRGBO(51, 51, 51, 1);
+
 

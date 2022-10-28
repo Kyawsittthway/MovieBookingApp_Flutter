@@ -1,21 +1,62 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:movie_booking_app/common_widgets_view/size_box_h30.dart';
+import 'package:movie_booking_app/currentAppState.dart';
+import 'package:movie_booking_app/data.vos/models/padc_api_model.dart';
+import 'package:movie_booking_app/data.vos/vos/base_response_vo.dart';
+import 'package:movie_booking_app/data.vos/vos/city_vo.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/fonts.dart';
 import 'package:movie_booking_app/resources/strings.dart';
 
-class LocationPage extends StatelessWidget {
-  List<String> cities = [
-    "Yangon",
-    "Mandalay",
-    "Nay Pyi Taw",
-    "Magway",
-  ];
+import '../data.vos/models/padc_api_model_impl.dart';
+import 'home_page.dart';
+
+class LocationPage extends StatefulWidget {
+  @override
+  State<LocationPage> createState() => _LocationPageState();
+}
+
+class _LocationPageState extends State<LocationPage> {
+  // List<String> cities = [
+  //   "Yangon",
+  //   "Mandalay",
+  //   "Nay Pyi Taw",
+  //   "Magway",
+  // ];
+  List<CityVO> cityList = [];
+  PadcApiModel padcApiModel = PadcApiModelImpl();
+  BaseResponseVO? setCityResponse;
+  @override
+  void initState(){
+    super.initState();
+
+    ///Location
+    padcApiModel.getCities().then((city){
+      setState(() {
+        cityList = city;
+      });
+    }).catchError((error){
+      print("Error occured in fetching city :: ${error}");
+    });
+
+    /// Location from Database
+    padcApiModel.getCities().then((cities){
+      setState(() {
+
+        cityList = cities;
+        print("City list from database :: $cityList");
+      });
+    }).catchError((error){
+      print("Error fetching locations from database :: $error");
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+
+
     return Scaffold(
         backgroundColor: PRIMARY_BACKGROUND_COLOR,
         body: Container(
@@ -124,25 +165,49 @@ class LocationPage extends StatelessWidget {
                 ListView.builder(
                     shrinkWrap: true,
                     scrollDirection: Axis.vertical,
-                    itemCount: cities.length,
+                    itemCount: cityList.length,
                     itemBuilder: (BuildContext context, int index) {
-                      return Column(
-                        children:[
-                        ListTile(
-                          title: Text(
-                            "${cities[index]}",
-                            style: TextStyle(
-                              color: Colors.white,
+                      return GestureDetector(
+                        child: Column(
+                          children:[
+                          ListTile(
+                            title: Text(
+                              "${cityList[index].name}",
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
                             ),
                           ),
+                            Divider(color: NAVIGATION_ICON_COLOR,),
+                        ]
                         ),
-                          Divider(color: NAVIGATION_ICON_COLOR,),
-                      ]
+                        onTap: (){
+                            padcApiModel.setCities(CurrentAppState.userToken,cityList[index].id ?? 0).then((result){
+
+                              setCityResponse = result;
+                              print("Set city response::${setCityResponse?.message}");
+                              setState(() {
+                                CurrentAppState.currentCityId = cityList[index].id ?? 0;
+                                CurrentAppState.currentCityname = cityList[index].name ?? "";
+
+                              });
+                              goToHomePage(context);
+                            }).catchError((error){
+                              print("Error in setting city $error");
+                            });
+                        },
                       );
                     })
               ],
             ),
           ),
         ));
+  }
+
+  void goToHomePage(BuildContext context) {
+      Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) =>  HomePage()),
+    );
   }
 }

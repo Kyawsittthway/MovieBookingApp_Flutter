@@ -1,26 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:movie_booking_app/common_widgets_view/interfont_text_widget.dart';
+import 'package:movie_booking_app/network/api_constants.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/fonts.dart';
 
 import '../common_widgets_view/dm_san_text_widget.dart';
+import '../data.vos/vos/movie_vo.dart';
 import '../resources/colors.dart';
 
 class MovieView extends StatelessWidget {
   late bool nowShowing;
-
-  MovieView({required this.nowShowing});
+  MovieVO? inputMovie;
+  MovieView({required this.nowShowing,required this.inputMovie});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.only(bottom: 20.0, right: 15.0),
+      margin: EdgeInsets.only(bottom: 20.0, right: 15.0),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(BORDER_RADIUS_NORMAL)
+      ),
       child: Stack(
         children: [
-          PosterView(),
+          PosterView(inputPosterPath: inputMovie?.posterPath,),
           GradientView(),
-          DescriptionView(),
-          ReleaseTag(nowShowing: nowShowing),
+          DescriptionView(inputTitle: inputMovie?.title,inputImagePath: inputMovie?.posterPath,),
+          ReleaseTag(nowShowing: nowShowing,inputReleaseDay: inputMovie?.getReleaseDay(),inputReleaseMonth: inputMovie?.getReleaseMonth(),),
         ],
       ),
     );
@@ -30,9 +35,14 @@ class MovieView extends StatelessWidget {
 class ReleaseTag extends StatelessWidget {
    ReleaseTag({
     required this.nowShowing,
+     required this.inputReleaseDay,
+     required this.inputReleaseMonth
+
   });
 
   final bool nowShowing;
+  final String? inputReleaseMonth;
+  final String? inputReleaseDay;
 
   @override
   Widget build(BuildContext context) {
@@ -51,12 +61,12 @@ class ReleaseTag extends StatelessWidget {
             child: Column(
               children: [
                 DmSanTextWidget(
-                  "10th",
+                  inputReleaseDay ?? "?",
                   fontSize: SMALL_FONT_SIZE_10,
                   color: MOVIE_VIEW_RELEASE_TAG_TEXT_COLOR,
                 ),
                 DmSanTextWidget(
-                  "AUG",
+                  inputReleaseMonth ?? "?",
                   fontSize: SMALL_FONT_SIZE_10,
                   color: MOVIE_VIEW_RELEASE_TAG_TEXT_COLOR,
                 )
@@ -70,6 +80,12 @@ class ReleaseTag extends StatelessWidget {
 }
 
 class DescriptionView extends StatelessWidget {
+  String? inputTitle;
+  String? inputImagePath;
+  DescriptionView({
+    required this.inputTitle,
+    required this.inputImagePath
+});
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -81,7 +97,7 @@ class DescriptionView extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            MovieTextFirstRow(),
+            MovieTextFirstRow(inputTitle: inputTitle,),
             MovieTextSecondRow(),
           ],
         ),
@@ -129,10 +145,10 @@ class MovieTextSecondRow extends StatelessWidget {
 }
 
 class MovieTextFirstRow extends StatelessWidget {
-  const MovieTextFirstRow({
-    Key? key,
-  }) : super(key: key);
-
+   MovieTextFirstRow({
+    required this.inputTitle,
+  });
+  String? inputTitle;
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -141,7 +157,7 @@ class MovieTextFirstRow extends StatelessWidget {
         Container(
           width: 100,
           child: Text(
-            "Emily",
+            inputTitle ?? "",
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
@@ -193,16 +209,24 @@ class GradientView extends StatelessWidget {
 }
 
 class PosterView extends StatelessWidget {
+  String? inputPosterPath;
+  PosterView({
+    required this.inputPosterPath
+});
   @override
   Widget build(BuildContext context) {
     return Container(
+      
       child: Positioned.fill(
         child: Container(
           height: MOVIE_POSTER_HEIGHT,
           width: MOVIE_POSTER_WIDTH,
-          child: Image.network(
-              "http://www.impawards.com/2022/posters/emily.jpg",
-              fit: BoxFit.cover),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(BORDER_RADIUS_NORMAL),
+            child: Image.network(
+                 "$IMAGE_BASE_URL$inputPosterPath",
+                fit: BoxFit.fitHeight),
+          ),
         ),
       ),
     );

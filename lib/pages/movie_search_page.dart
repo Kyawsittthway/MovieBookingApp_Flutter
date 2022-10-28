@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/currentAppState.dart';
+import 'package:movie_booking_app/pages/movie_detail_page.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 
 import '../resources/dimens.dart';
@@ -7,15 +9,13 @@ import '../resources/strings.dart';
 import '../viewitems/movie_view.dart';
 
 class MovieSearchPage extends StatefulWidget {
-  final bool isNowShowing;
-  MovieSearchPage({
-    required this.isNowShowing
-});
+
   @override
   State<MovieSearchPage> createState() => _MovieSearchPageState();
 }
 
 class _MovieSearchPageState extends State<MovieSearchPage> {
+
   @override
   List<String> genre = ["Action", "Comedy", "Drama"];
 
@@ -25,6 +25,7 @@ class _MovieSearchPageState extends State<MovieSearchPage> {
   String dropDownValue = "Genre";
 
   Widget build(BuildContext context) {
+  //  print("MovieSearchPage isNowShowing :: ${widget.isNowShowing}");
     return Scaffold(
       backgroundColor: PRIMARY_BACKGROUND_COLOR,
       appBar: AppBar(
@@ -70,7 +71,7 @@ class _MovieSearchPageState extends State<MovieSearchPage> {
                 children: [
                   DropDownView(genre: genre, hint: "Genre"),
                   DropDownView(genre: format, hint: "Format"),
-                  Visibility(visible: widget.isNowShowing,child: DropDownView(genre: month, hint: "Month")),
+                  Visibility(visible: CurrentAppState.isNowShowing,child: DropDownView(genre: month, hint: "Month")),
                 ],
               ),
             ),
@@ -85,8 +86,16 @@ class _MovieSearchPageState extends State<MovieSearchPage> {
                   ),
                   itemCount: 3,
                   itemBuilder: (BuildContext context, int index) {
-                    return MovieView(
-                      nowShowing: widget.isNowShowing,
+                    return GestureDetector(
+                      child: MovieView(
+                        nowShowing: CurrentAppState.isNowShowing,inputMovie:null ,
+                      ),
+                      onTap: (){
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(builder: (context) =>  MovieDetailPage()),
+                        // );
+                      },
                     );
                   }),
             )

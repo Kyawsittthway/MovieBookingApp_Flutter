@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
+import 'package:movie_booking_app/currentAppState.dart';
+import 'package:movie_booking_app/data.vos/vos/user_info_vo.dart';
+import 'package:movie_booking_app/network/responses/sign_in_with_phone_response.dart';
+import 'package:movie_booking_app/pages/location_page.dart';
+import 'package:movie_booking_app/persistence/dao/sign_in_response_dao.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/fonts.dart';
@@ -7,9 +12,18 @@ import 'package:movie_booking_app/resources/strings.dart';
 
 import '../common_widgets_view/size_box_h12.dart';
 import '../common_widgets_view/size_box_h30.dart';
+import '../data.vos/models/padc_api_model.dart';
+import '../data.vos/models/padc_api_model_impl.dart';
 import 'home_page.dart';
 
 class OTPpage extends StatelessWidget {
+  final String phoneNo;
+  OTPpage({required this.phoneNo});
+  PadcApiModel padcApiModel = PadcApiModelImpl();
+   SignInWithPhoneResponse? signInWithPhoneResponse;
+   UserInfoVO? userInfoVO;
+  String veriCode = "";
+  SignInResponseDao signInResponseDao = SignInResponseDao();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,14 +83,17 @@ class OTPpage extends StatelessWidget {
                     print(code);
                   },
                   onSubmit: (String verificationCode) {
-                    showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            title: Text("Verification Code"),
-                            content: Text("Code entered is $verificationCode"),
-                          );
-                        });
+                    veriCode = verificationCode;
+
+
+                    // showDialog(
+                    //     context: context,
+                    //     builder: (context) {
+                    //       return AlertDialog(
+                    //         title: Text("Verification Code"),
+                    //         content: Text("Code entered is $verificationCode"),
+                    //       );
+                    //     });
                   },
                 ),
                 SizeBoxH30(),
@@ -107,10 +124,24 @@ class OTPpage extends StatelessWidget {
                   width: LOGIN_VIEW_BUTTON_WIDTH,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) =>  HomePage()),
-                      );
+                      padcApiModel.getUserInfoFromDatabase(phoneNo, veriCode).listen((response){
+                        signInWithPhoneResponse = response;
+                        print("verification code :: $veriCode & phoneNumber::$phoneNo");
+                        print("Response from api :: ${signInWithPhoneResponse?.code}");
+                        userInfoVO = response?.data;
+                        print("Name of the user ${userInfoVO?.toJson()} ");
+                        if(response?.code == 201){
+                          CurrentAppState.userToken = "Bearer ${response?.token}";
+                          print("setting token in otp :: ${response?.token}");
+                          signInResponseDao.saveUserInfo(signInWithPhoneResponse!);
+                          print("user value from db :: ${signInResponseDao.getUserInfoBox()}");
+                          navigateToLocationPage(context);
+                        }
+
+                      }).onError((error){
+                        print("Sign in with phone Error :: ${error}");
+                      });
+
                     },
                     style: ElevatedButton.styleFrom(
                         primary: GREEN_BUTTON_COLOR, onPrimary: Colors.black),
@@ -135,5 +166,12 @@ class OTPpage extends StatelessWidget {
             ),
           ),
         ));
+  }
+
+  void navigateToLocationPage(BuildContext context) {
+     Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) =>  LocationPage()),
+    );
   }
 }

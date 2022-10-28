@@ -1,7 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 import 'package:movie_booking_app/common_widgets_view/size_box_h30.dart';
 import 'package:movie_booking_app/common_widgets_view/size_box_r12.dart';
+import 'package:movie_booking_app/data.vos/models/padc_api_model.dart';
+import 'package:movie_booking_app/data.vos/models/padc_api_model_impl.dart';
+import 'package:movie_booking_app/network/responses/get_otp_response.dart';
+import 'package:movie_booking_app/network/responses/sign_in_with_phone_response.dart';
 import 'package:movie_booking_app/pages/home_page.dart';
 import 'package:movie_booking_app/pages/otp_page.dart';
 import 'package:movie_booking_app/resources/colors.dart';
@@ -19,10 +24,26 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   var countryCodes = [
     "+95",
-    "+65",
-    "+1",
-    "+66",
   ];
+  final phoneNoTextFieldController = TextEditingController();
+  PadcApiModel otpModel = PadcApiModelImpl();
+  late GetOTPResponse getOTPresponse;
+
+
+
+  @override
+  void initState(){
+    super.initState();
+    // otpModel.getUserInfoFromDatabase().then((info){
+    //   setState(() {
+    //     userInfo = info;
+    //     print("User infos :: ${userInfo?.toJson()}");
+    //
+    //   });
+    // }).catchError((error){
+    //   print("Error fetching user info from db :: $error");
+    // });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,35 +90,52 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    DropdownButton(
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          dropDownValue = newValue!;
-                        });
-                      },
-                      items: countryCodes
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(
-                            value,
-                            style: TextStyle(
-                              color: Colors.black,
-                            ),
+                    Container(
+                      height: 80,
+                      width: 75,
+                      child: Center(
+                        child: DropdownButton(
+                        style: TextStyle(
+                        color: Colors.white,
+                          fontSize: SMALL_FONT_SIZE_14
                           ),
-                        );
-                      }).toList(),
+                          dropdownColor: Colors.black,
+                          value: dropDownValue,
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              dropDownValue = newValue!;
+                              print(dropDownValue);
+                            });
+                          },
+                          items: countryCodes
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: dropDownValue,
+                              child: Text(
+                                value,
+                                style: TextStyle(
+                                  color: Colors.white,
+
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
                     ),
                     SizeBoxR12(),
                     Container(
                         width: 200,
                         child: TextFormField(
                           keyboardType: TextInputType.number,
+                          controller: phoneNoTextFieldController,
                           style: TextStyle(
                             color: Colors.white,
                           ),
                           decoration: InputDecoration(
-                            border: UnderlineInputBorder(),
+                            border:UnderlineInputBorder(),
+                            enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+
                             hintText: MOBILE_PHONE_HINT_TEXT,
                             hintStyle: TextStyle(
                               color: Colors.grey,
@@ -111,10 +149,20 @@ class _LoginPageState extends State<LoginPage> {
                 child: ElevatedButton(
                     child: Text(VERIFY_PHONE_NUMBER),
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) =>  OTPpage()),
-                      );
+                      String fullPhNo = "$dropDownValue${phoneNoTextFieldController.text}";
+                      String refinedPhNo = fullPhNo.substring(1,fullPhNo.length);
+                      // navigateToOTPpage(context);
+                      print("Value in the text :: ${phoneNoTextFieldController.text}");
+                     otpModel.getOTPResponse(refinedPhNo).then((otpResponse){
+                       getOTPresponse = otpResponse;
+                       if(getOTPresponse.code == 200){
+
+                         navigateToOTPpage(context,refinedPhNo);
+                       }
+                     }).catchError((error){
+                       print(error);
+                     });
+
                     },
                     style: ElevatedButton.styleFrom(
                         primary: GREEN_BUTTON_COLOR, onPrimary: Colors.black)),
@@ -128,10 +176,8 @@ class _LoginPageState extends State<LoginPage> {
                     Text(CONTINUE_WITH_GOOGLE_TEXT),
                   ]),
                   onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) =>  HomePage()),
-                    );
+                    //navigateToHomePage(context);
+
                   },
                   style: ElevatedButton.styleFrom(
                       primary: Colors.white, onPrimary: Colors.black),
@@ -153,6 +199,20 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
+    );
+  }
+
+  void navigateToOTPpage(BuildContext context,String phoneNo) {
+     Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) =>  OTPpage(phoneNo: phoneNo,)),
+    );
+  }
+
+  void navigateToHomePage(BuildContext context) {
+       Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) =>  HomePage()),
     );
   }
 }
