@@ -11,6 +11,7 @@ import 'package:movie_booking_app/data.vos/vos/payment_vo.dart';
 import 'package:movie_booking_app/data.vos/vos/seat_vo.dart';
 import 'package:movie_booking_app/data.vos/vos/snack_category_vo.dart';
 import 'package:movie_booking_app/data.vos/vos/snack_vo.dart';
+import 'package:movie_booking_app/data.vos/vos/user_info_persistence_vo.dart';
 import 'package:movie_booking_app/network/padc_api_data_agent.dart';
 import 'package:movie_booking_app/network/responses/get_checkout_response.dart';
 import 'package:movie_booking_app/network/responses/get_otp_response.dart';
@@ -63,6 +64,8 @@ class PadcApiModelImpl extends PadcApiModel{
   void getSignInWithPhoneResponse(String phoneNo, String otp) {
    padcDataAgent.getSignInWithPhoneResponse(phoneNo, otp).then((userInfo) async{
     mSignInResponseDao.saveUserInfo(userInfo);
+    UserInfoPersistenceVO userInfoPersistenceVO = UserInfoPersistenceVO(userInfo.data?.id,userInfo.token, userInfo.data);
+    mUserInfoDao.saveUserInfo(userInfoPersistenceVO);
     return Future.value(userInfo);
 
   });
@@ -160,8 +163,11 @@ class PadcApiModelImpl extends PadcApiModel{
         .map((event) => mSignInResponseDao.getUserInfo());
   }
 
-  Future<SignInWithPhoneResponse?> getUserInfoFromDatabaseNoParameter(){
-    return Future.value(mSignInResponseDao.getUserInfo());
+  Stream<UserInfoPersistenceVO?> getUserInfoFromDatabaseNoParameter(int userId){
+    return mUserInfoDao
+        .getAllUserInfoEventStream()
+        .startWith(mUserInfoDao.getUserInfoStream(userId))
+        .map((event) => mUserInfoDao.getUserInfo(userId));
   }
 
   @override

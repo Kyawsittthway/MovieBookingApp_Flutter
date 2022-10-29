@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:movie_booking_app/data.vos/vos/user_info_persistence_vo.dart';
 import 'package:movie_booking_app/pages/login_page.dart';
 import 'package:movie_booking_app/resources/colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../data.vos/models/padc_api_model.dart';
 import '../data.vos/models/padc_api_model_impl.dart';
@@ -19,7 +21,7 @@ class WelcomePage extends StatefulWidget {
 
 class _WelcomePageState extends State<WelcomePage> {
   PadcApiModel padcApiModel = PadcApiModelImpl();
-  SignInWithPhoneResponse? userInfo;
+  UserInfoPersistenceVO? userInfo;
   late Future<bool> loginCheckFuture;
 
   @override
@@ -28,8 +30,9 @@ class _WelcomePageState extends State<WelcomePage> {
 
 
 
-    Timer(Duration(seconds: 5),(){
-      padcApiModel.getUserInfoFromDatabaseNoParameter().then((info) {
+    Timer(Duration(seconds: 5),()async{
+      int userId = await getUserId();
+      padcApiModel.getUserInfoFromDatabaseNoParameter(userId).listen((info) {
 
           userInfo = info;
           print("User info from database :: $userInfo");
@@ -39,7 +42,7 @@ class _WelcomePageState extends State<WelcomePage> {
           }else{
             Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (_) => HomePage()), (route) => false);
           }
-      }).catchError((error) {
+      }).onError((error) {
         print("error fetching user info from databsae :: $error");
       });
       // if(userInfo == null){
@@ -49,6 +52,12 @@ class _WelcomePageState extends State<WelcomePage> {
       // }
     });
   }
+
+  Future<int> getUserId()async{
+  final prefs = await SharedPreferences.getInstance();
+  int id = prefs.getInt('userId') ?? 0;
+  return id;
+}
 
 
 

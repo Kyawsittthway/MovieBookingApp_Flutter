@@ -21,7 +21,11 @@ class SignInResponseDao{
 
 
   SignInWithPhoneResponse? getUserInfo(){
-     return getUserInfoBox().values.first ?? null;
+    if(getUserInfoBox().values.isEmpty == true){
+      return null;
+    }else {
+      return getUserInfoBox().values.first;
+    }
   }
 
   ///Reactive Programming

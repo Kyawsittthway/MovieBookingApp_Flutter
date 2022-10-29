@@ -43,6 +43,7 @@ import 'package:movie_booking_app/pages/your_ticket_page.dart';
 import 'package:movie_booking_app/persistence/hive_constants.dart';
 import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/utils.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'data.vos/models/padc_api_model.dart';
 import 'data.vos/models/padc_api_model_impl.dart';
@@ -109,9 +110,11 @@ void main() async{
 
   bool isLoginned = true;
   PadcApiModel padcApiModel = PadcApiModelImpl();
-  SignInWithPhoneResponse? userInfo;
-
-  padcApiModel.getUserInfoFromDatabaseNoParameter().then((info) {
+  UserInfoPersistenceVO? userInfo;
+  final prefs = await SharedPreferences.getInstance();
+  int userId = prefs.getInt('userId') ?? 0;
+  print("shared preference user Id :: $userId");
+  padcApiModel.getUserInfoFromDatabaseNoParameter(userId).listen((info) {
 
     userInfo = info;
     print("User info from database :: ${userInfo?.token}");
@@ -125,7 +128,7 @@ void main() async{
      print("current appstae is logged :: ${CurrentAppState.isLogged}");
       runApp( MyApp(isLoginned: CurrentAppState.isLogged,));
     }
-  }).catchError((error) {
+  }).onError((error) {
     print("error fetching user info from databsae :: $error");
   });
 

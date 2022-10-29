@@ -9,6 +9,7 @@ import 'package:movie_booking_app/resources/colors.dart';
 import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/fonts.dart';
 import 'package:movie_booking_app/resources/strings.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../common_widgets_view/size_box_h12.dart';
 import '../common_widgets_view/size_box_h30.dart';
@@ -123,18 +124,21 @@ class OTPpage extends StatelessWidget {
                 Container(
                   width: LOGIN_VIEW_BUTTON_WIDTH,
                   child: ElevatedButton(
-                    onPressed: () {
-                      padcApiModel.getUserInfoFromDatabase(phoneNo, veriCode).listen((response){
-                        signInWithPhoneResponse = response;
-                        print("verification code :: $veriCode & phoneNumber::$phoneNo");
-                        print("Response from api :: ${signInWithPhoneResponse?.code}");
-                        userInfoVO = response?.data;
-                        print("Name of the user ${userInfoVO?.toJson()} ");
+                    onPressed: () async{
+                      final prefs = await SharedPreferences.getInstance();
+                      padcApiModel.getUserInfoFromDatabase(phoneNo, veriCode).listen((response) async {
+                        // signInWithPhoneResponse = response;
+                        // print("verification code :: $veriCode & phoneNumber::$phoneNo");
+                        // print("Response from api :: ${signInWithPhoneResponse?.code}");
+                        // userInfoVO = response?.data;
+                        // print("Name of the user ${userInfoVO?.toJson()} ");
                         if(response?.code == 201){
                           CurrentAppState.userToken = "Bearer ${response?.token}";
                           print("setting token in otp :: ${response?.token}");
-                          signInResponseDao.saveUserInfo(signInWithPhoneResponse!);
-                          print("user value from db :: ${signInResponseDao.getUserInfoBox()}");
+                          await prefs.setInt("userId", response?.data?.id ?? 0);
+
+                          // signInResponseDao.saveUserInfo(signInWithPhoneResponse!);
+                          // print("user value from db :: ${signInResponseDao.getUserInfoBox()}");
                           navigateToLocationPage(context);
                         }
 

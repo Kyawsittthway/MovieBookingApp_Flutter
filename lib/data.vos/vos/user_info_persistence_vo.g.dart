@@ -17,18 +17,21 @@ class UserInfoPersistenceVOAdapter extends TypeAdapter<UserInfoPersistenceVO> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return UserInfoPersistenceVO(
-      fields[0] as String?,
-      fields[1] as UserInfoVO?,
+      fields[0] as int?,
+      fields[1] as String?,
+      fields[2] as UserInfoVO?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserInfoPersistenceVO obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
-      ..write(obj.token)
+      ..write(obj.id)
       ..writeByte(1)
+      ..write(obj.token)
+      ..writeByte(2)
       ..write(obj.userInfoVO);
   }
 

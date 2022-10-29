@@ -28,7 +28,8 @@ class TimeSlotSection extends StatefulWidget {
         required this.cinemasByDate,
         required this.timeslotStatus,
         required this.configVO,
-        required this.padcApiModel
+        required this.padcApiModel,
+        required this.isChooseCinemaTimePage
       });
 
   final List<CinemaVO> cinemas;
@@ -36,6 +37,7 @@ class TimeSlotSection extends StatefulWidget {
   final ConfigVoCinemaTimeSlotStatusVO timeslotStatus;
   final ConfigVO configVO;
   final PadcApiModel padcApiModel;
+  final bool isChooseCinemaTimePage;
 
   @override
   State<TimeSlotSection> createState() => _TimeSlotSectionState();
@@ -80,8 +82,8 @@ class _TimeSlotSectionState extends State<TimeSlotSection> {
                   padcApiModel: widget.padcApiModel,
               ),
               theme: ExpandableThemeData(
-                tapHeaderToExpand: true,
-                tapBodyToExpand: true,
+                tapHeaderToExpand: widget.isChooseCinemaTimePage,
+                tapBodyToExpand: widget.isChooseCinemaTimePage,
                 hasIcon: false,
               ),
             );

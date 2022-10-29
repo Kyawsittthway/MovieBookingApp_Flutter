@@ -215,7 +215,7 @@ class _ChooseTimeCinemaState extends State<ChooseTimeCinema> {
                   cinemas: cinemaList,
                   cinemasByDate: ChooseTimeCinema.cinemaByDateList,
                   timeslotStatus: timeslotsStatusList ??
-                      ConfigVoCinemaTimeSlotStatusVO(0, "", []), configVO: cinemaUpdatedTime ?? ConfigVO(0, "", "value"), padcApiModel: padcApiModel,),
+                      ConfigVoCinemaTimeSlotStatusVO(0, "", []), configVO: cinemaUpdatedTime ?? ConfigVO(0, "", "value"), padcApiModel: padcApiModel, isChooseCinemaTimePage: true,),
 
             ],
           ),

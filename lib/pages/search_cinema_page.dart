@@ -280,7 +280,7 @@ class _SearchCinemaPageState extends State<SearchCinemaPage> {
                 cinemas: cinemaList,
                 cinemasByDate: cinemaByDateList,
                 timeslotStatus: timeslotsStatusList ??
-                    ConfigVoCinemaTimeSlotStatusVO(0, "", []), configVO: cinemaUpdatedTime ?? ConfigVO(0, "", "value"), padcApiModel: padcApiModel,),
+                    ConfigVoCinemaTimeSlotStatusVO(0, "", []), configVO: cinemaUpdatedTime ?? ConfigVO(0, "", "value"), padcApiModel: padcApiModel, isChooseCinemaTimePage: false,),
             ],
           ),
         ),

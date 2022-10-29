@@ -8,11 +8,15 @@ part 'user_info_persistence_vo.g.dart';
 @HiveType(typeId: HIVE_TYPE_ID_USER_INFO_PERSISTENCE_VO,adapterName: "UserInfoPersistenceVOAdapter")
 class UserInfoPersistenceVO{
 
+
   @HiveField(0)
-  String? token;
+  int? id;
 
   @HiveField(1)
+  String? token;
+
+  @HiveField(2)
   UserInfoVO? userInfoVO;
 
-  UserInfoPersistenceVO(this.token, this.userInfoVO);
+  UserInfoPersistenceVO(this.id, this.token, this.userInfoVO);
 }

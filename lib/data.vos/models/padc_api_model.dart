@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:movie_booking_app/data.vos/vos/banner_image_vo.dart';
 import 'package:movie_booking_app/data.vos/vos/cinema_by_date_vo.dart';
 import 'package:movie_booking_app/data.vos/vos/config_vo.dart';
+import 'package:movie_booking_app/data.vos/vos/user_info_persistence_vo.dart';
 import 'package:movie_booking_app/network/responses/get_checkout_response.dart';
 import 'package:movie_booking_app/network/responses/get_otp_response.dart';
 import 'package:retrofit/retrofit.dart';
@@ -40,7 +41,7 @@ abstract class PadcApiModel{
 
   ///Database
   Stream<SignInWithPhoneResponse?> getUserInfoFromDatabase(String phoneNo,String otp);
-  Future<SignInWithPhoneResponse?> getUserInfoFromDatabaseNoParameter();
+  Stream<UserInfoPersistenceVO?> getUserInfoFromDatabaseNoParameter(int userId);
   Future<List<BannerImageVO>>  getBannersResponseFromDatabase();
   Future<List<CinemaVO>> getCinemasFromDatabase();
   Future<ConfigVO> getConfigByDateKeyFromDatabase(String dateKey);
