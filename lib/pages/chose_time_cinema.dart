@@ -6,6 +6,7 @@ import 'package:movie_booking_app/common_widgets_view/size_box_h12.dart';
 import 'package:movie_booking_app/common_widgets_view/size_box_h30.dart';
 import 'package:movie_booking_app/common_widgets_view/size_box_r12.dart';
 import 'package:movie_booking_app/common_widgets_view/size_box_r6.dart';
+import 'package:movie_booking_app/config/config_values.dart';
 import 'package:movie_booking_app/currentAppState.dart';
 import 'package:movie_booking_app/data.vos/vos/cinema_time_slot_status_vo.dart';
 import 'package:movie_booking_app/data.vos/vos/config_vo_cinema_time_slot_status_vo.dart';
@@ -21,6 +22,7 @@ import 'package:movie_booking_app/resources/dimens.dart';
 import 'package:movie_booking_app/resources/fonts.dart';
 
 import '../common_widgets_view/cinema_time_slot_view_widget.dart';
+import '../config/environment_config.dart';
 import '../data.vos/models/padc_api_model.dart';
 import '../data.vos/models/padc_api_model_impl.dart';
 import '../data.vos/vos/cinema_by_date_vo.dart';
@@ -62,6 +64,7 @@ class _ChooseTimeCinemaState extends State<ChooseTimeCinema> {
   @override
   void initState() {
     super.initState();
+
     ///Config Resposne from network
     padcApiModel.getConfigResponse().then((response) {
       setState(() {
@@ -72,31 +75,30 @@ class _ChooseTimeCinemaState extends State<ChooseTimeCinema> {
         print("Timeslot status list from set state :: $timeslotsStatusList");
         slotStatusHolder =
             timeslotsStatusList?.timeslotStatus as List<CinemaTimeslotVO>;
-        mCinemaTimeslotDao.saveAllCinemaTimeslots(slotStatusHolder, "${cinemaUpdatedTime?.getReleaseYear()}-${cinemaUpdatedTime?.getReleaseMonthInNumber()}-${cinemaUpdatedTime?.getReleaseDay()}");
+        mCinemaTimeslotDao.saveAllCinemaTimeslots(slotStatusHolder,
+            "${cinemaUpdatedTime?.getReleaseYear()}-${cinemaUpdatedTime?.getReleaseMonthInNumber()}-${cinemaUpdatedTime?.getReleaseDay()}");
         for (int i = 0; i < slotStatusHolder.length; i++) {
           Utils.idToStatus[slotStatusHolder[i].id] =
               HexColor(slotStatusHolder[i].color);
         }
-          int currentDay = int.parse(cinemaUpdatedTime?.getReleaseDay() ?? "");
-          int mutatedMonth = int.parse(cinemaUpdatedTime?.getReleaseMonthInNumber() ?? "");
-          daysInWeek.add(currentDay);
-          for (int i = 0; i < 14; i++) {
-            if (currentDay <= 30) {
-              currentDay++;
-              daysInWeek.add(currentDay);
-
+        int currentDay = int.parse(cinemaUpdatedTime?.getReleaseDay() ?? "");
+        int mutatedMonth =
+            int.parse(cinemaUpdatedTime?.getReleaseMonthInNumber() ?? "");
+        daysInWeek.add(currentDay);
+        for (int i = 0; i < 14; i++) {
+          if (currentDay <= 30) {
+            currentDay++;
+            daysInWeek.add(currentDay);
+          } else {
+            currentDay = 1;
+            if (mutatedMonth > 12) {
+              mutatedMonth = 1;
             } else {
-
-              currentDay = 1;
-              if(mutatedMonth > 12){
-                mutatedMonth = 1;
-              }else{
-                mutatedMonth ++;
-              }
-              daysInWeek.add(currentDay);
+              mutatedMonth++;
             }
+            daysInWeek.add(currentDay);
           }
-
+        }
 
         print("SlotStatusHolder::${Utils.idToStatus}");
 
@@ -109,17 +111,27 @@ class _ChooseTimeCinemaState extends State<ChooseTimeCinema> {
     });
 
     ///Configs from database
-    padcApiModel.getConfigByDateKeyFromDatabase("${cinemaUpdatedTime?.getReleaseYear()}-${cinemaUpdatedTime?.getReleaseMonthInNumber()}-${cinemaUpdatedTime?.getReleaseDay()}").then((configs){
+    padcApiModel
+        .getConfigByDateKeyFromDatabase(
+            "${cinemaUpdatedTime?.getReleaseYear()}-${cinemaUpdatedTime?.getReleaseMonthInNumber()}-${cinemaUpdatedTime?.getReleaseDay()}")
+        .then((configs) {
       setState(() {
         cinemaUpdatedTime = configs;
       });
-    }).catchError((error){print("Error fetching config from database :: $error");});
+    }).catchError((error) {
+      print("Error fetching config from database :: $error");
+    });
 
-    padcApiModel.getCinemaTimeslotsByDateKeyFromDatabase("${cinemaUpdatedTime?.getReleaseYear()}-${cinemaUpdatedTime?.getReleaseMonthInNumber()}-${cinemaUpdatedTime?.getReleaseDay()}").then((cinemaTimeslots){
+    padcApiModel
+        .getCinemaTimeslotsByDateKeyFromDatabase(
+            "${cinemaUpdatedTime?.getReleaseYear()}-${cinemaUpdatedTime?.getReleaseMonthInNumber()}-${cinemaUpdatedTime?.getReleaseDay()}")
+        .then((cinemaTimeslots) {
       setState(() {
         slotStatusHolder = cinemaTimeslots;
       });
-    }).catchError((error){print("Error fetching cinema timeslots from database :: $error");});
+    }).catchError((error) {
+      print("Error fetching cinema timeslots from database :: $error");
+    });
 
     /// Cinema and Show Time
     // padcApiModel
@@ -135,12 +147,17 @@ class _ChooseTimeCinemaState extends State<ChooseTimeCinema> {
 
     ///Cinema and Show Time from Database
 
-    padcApiModel.getCinemaAndShowtimeByDateFromDatabase("${cinemaUpdatedTime?.getReleaseYear()}-${cinemaUpdatedTime?.getReleaseMonthInNumber()}-${cinemaUpdatedTime?.getReleaseDay()}",CurrentAppState.userToken).listen((cinemaTimeslots) {
+    padcApiModel
+        .getCinemaAndShowtimeByDateFromDatabase(
+            "${cinemaUpdatedTime?.getReleaseYear()}-${cinemaUpdatedTime?.getReleaseMonthInNumber()}-${cinemaUpdatedTime?.getReleaseDay()}",
+            CurrentAppState.userToken)
+        .listen((cinemaTimeslots) {
       setState(() {
         ChooseTimeCinema.cinemaByDateList = cinemaTimeslots ?? [];
       });
-    }).onError((error){print("Error Fetching cinema and showtime ");});
-
+    }).onError((error) {
+      print("Error Fetching cinema and showtime ");
+    });
 
     /// Get Cinema
     padcApiModel.getCinema().then((cinema) {
@@ -153,11 +170,13 @@ class _ChooseTimeCinemaState extends State<ChooseTimeCinema> {
     });
 
     /// Get Cinema From database
-    padcApiModel.getCinemasFromDatabase().then((cinema){
+    padcApiModel.getCinemasFromDatabase().then((cinema) {
       setState(() {
         cinemaList = cinema;
       });
-    }).catchError((error){print("Error fetching cinema from database :: $error}");});
+    }).catchError((error) {
+      print("Error fetching cinema from database :: $error}");
+    });
   }
 
   @override
@@ -181,7 +200,8 @@ class _ChooseTimeCinemaState extends State<ChooseTimeCinema> {
           Icon(CupertinoIcons.paperplane),
           Padding(
             padding: EdgeInsets.only(top: SMALL_PADDING_15),
-            child: InterFontTextWidget("${CurrentAppState.currentCityname}", fontStyle: FontStyle.italic),
+            child: InterFontTextWidget("${CurrentAppState.currentCityname}",
+                fontStyle: FontStyle.italic),
           ),
           IconButton(
             onPressed: () {},
@@ -202,8 +222,10 @@ class _ChooseTimeCinemaState extends State<ChooseTimeCinema> {
             children: [
               DayView(
                 configs: cinemaUpdatedTime,
-                daysInWeek: daysInWeek, padcApiModel: padcApiModel, cinemasByDates: ChooseTimeCinema.cinemaByDateList,root: rootContext,
-
+                daysInWeek: daysInWeek,
+                padcApiModel: padcApiModel,
+                cinemasByDates: ChooseTimeCinema.cinemaByDateList,
+                root: rootContext,
               ),
               FormatChipView(format: format),
               IndicatorViews(
@@ -212,11 +234,14 @@ class _ChooseTimeCinemaState extends State<ChooseTimeCinema> {
                 height: MEDIUM_HEIGHT,
               ),
               TimeSlotSection(
-                  cinemas: cinemaList,
-                  cinemasByDate: ChooseTimeCinema.cinemaByDateList,
-                  timeslotStatus: timeslotsStatusList ??
-                      ConfigVoCinemaTimeSlotStatusVO(0, "", []), configVO: cinemaUpdatedTime ?? ConfigVO(0, "", "value"), padcApiModel: padcApiModel, isChooseCinemaTimePage: true,),
-
+                cinemas: cinemaList,
+                cinemasByDate: ChooseTimeCinema.cinemaByDateList,
+                timeslotStatus: timeslotsStatusList ??
+                    ConfigVoCinemaTimeSlotStatusVO(0, "", []),
+                configVO: cinemaUpdatedTime ?? ConfigVO(0, "", "value"),
+                padcApiModel: padcApiModel,
+                isChooseCinemaTimePage: true,
+              ),
             ],
           ),
         ),
@@ -225,17 +250,14 @@ class _ChooseTimeCinemaState extends State<ChooseTimeCinema> {
   }
 }
 
-
-
 class ChooseTimeCinemaDialogBox extends StatelessWidget {
-   ChooseTimeCinemaDialogBox({
-    required this.cinemaName,
-     required this.cinemaVO,
-     required this.timeslotVO,
-     required this.config,
-     required this.padcApiModel
+  ChooseTimeCinemaDialogBox(
+      {required this.cinemaName,
+      required this.cinemaVO,
+      required this.timeslotVO,
+      required this.config,
+      required this.padcApiModel});
 
-  });
   final String cinemaName;
   final CinemaVO cinemaVO;
   final TimeslotVO timeslotVO;
@@ -292,7 +314,8 @@ class ChooseTimeCinemaDialogBox extends StatelessWidget {
                   CurrentAppState.receipt.location = cinemaVO.address;
                   CurrentAppState.receipt.time = timeslotVO.startTime;
                   CurrentAppState.cinemaDayTimeslotId = timeslotVO.id ?? 0;
-                  CurrentAppState.receipt.date =" ${config.getReleaseDay()} ${config.getReleaseMonth()} ${config.getReleaseYear()}";
+                  CurrentAppState.receipt.date =
+                      " ${config.getReleaseDay()} ${config.getReleaseMonth()} ${config.getReleaseYear()}";
                   goToFoodAndBeverage(context);
                 },
                 child: Text(CINEMA_CHOOSE_POP_UP_ACCEPT_TEXT,
@@ -307,10 +330,9 @@ class ChooseTimeCinemaDialogBox extends StatelessWidget {
   }
 
   void goToFoodAndBeverage(BuildContext context) {
-      Navigator.push(
+    Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => FoodAndBeveragePage()),
+      MaterialPageRoute(builder: (context) => FoodAndBeveragePage()),
     );
   }
 }
@@ -356,8 +378,12 @@ class DayView extends StatefulWidget {
   PadcApiModel padcApiModel;
   BuildContext root;
 
-
-  DayView({required this.configs,required this.daysInWeek, required this.padcApiModel, required this.cinemasByDates,required this.root});
+  DayView(
+      {required this.configs,
+      required this.daysInWeek,
+      required this.padcApiModel,
+      required this.cinemasByDates,
+      required this.root});
 
   @override
   State<DayView> createState() => _DayViewState();
@@ -366,83 +392,97 @@ class DayView extends StatefulWidget {
 class _DayViewState extends State<DayView> {
   bool isChosen = false;
   int selectedIndex = 0;
-  bool isSelectedView(int index1,int index2){
+
+  bool isSelectedView(int index1, int index2) {
     // print("Index 1 :: $index1 , Index 2 :: $index2");
-    if(index1 == index2) {return true;}else{
+    if (index1 == index2) {
+      return true;
+    } else {
       return false;
     }
   }
+
   @override
   Widget build(BuildContext context) {
-
     return Container(
       padding: EdgeInsets.only(top: SMALL_PADDING),
       margin: EdgeInsets.symmetric(horizontal: SMALL_PADDING),
       height: KILO_HEIGHT_1P5,
       child: ListView.builder(
-
-          itemCount: widget.daysInWeek.length ,
+          itemCount: widget.daysInWeek.length,
           scrollDirection: Axis.horizontal,
           itemBuilder: (BuildContext context, int index) {
             return GestureDetector(
-              child: Stack(alignment: Alignment.center, children: [
-                Container(
-                  margin: EdgeInsets.all(SMALL_PADDING),
-                  height: KILO_HEIGHT_1P5,
-                  width: KILO_WIDTH,
-                  decoration: BoxDecoration(
-                      color: isSelectedView(index, selectedIndex) == true ? GREEN_BUTTON_COLOR : MOVIE_VIEW_DOT_COLOR,
-                      borderRadius: BorderRadius.circular(BORDER_RADIUS_NORMAL),
-                      boxShadow: [
-                        BoxShadow(
-                          color: GREEN_BUTTON_COLOR,
-                          blurRadius: SMALL_BLUR_RADIUS,
-                        )
-                      ]),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      DayViewTopTicketHoleView(),
-                      Container(
-                          height: 100,
-                          child: DayDetailViewWidget(
-                            dateDetails: widget.configs,
-                            index: index,
-                            daysInWeek: widget.daysInWeek,
-                          ))
-                    ],
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    margin: EdgeInsets.all(SMALL_PADDING),
+                    height: KILO_HEIGHT_1P5,
+                    width: KILO_WIDTH,
+                    decoration: BoxDecoration(
+                        // color: isSelectedView(index, selectedIndex) == true ? GREEN_BUTTON_COLOR : MOVIE_VIEW_DOT_COLOR,
+                        color: ACTOR_LIST_STYLES[EnvironmentConfig.CONFIG_ACTOR_LIST_STYLE] == ActorListStyle.ScrollActorList ?isSelectedView(index, selectedIndex) == true ? GREEN_BUTTON_COLOR : MOVIE_VIEW_DOT_COLOR:MOVIE_VIEW_DOT_COLOR ,
+                        border: ACTOR_LIST_STYLES[EnvironmentConfig.CONFIG_ACTOR_LIST_STYLE] == ActorListStyle.WrapActorList ? Border.all(
+                            color: isSelectedView(index, selectedIndex) == true
+                                ? GREEN_BUTTON_COLOR
+                                : MOVIE_VIEW_DOT_COLOR,
+                        width: 5.0): null,
+                        borderRadius:
+                            BorderRadius.circular(BORDER_RADIUS_NORMAL),
+                        boxShadow: [
+                          BoxShadow(
+                            color: GREEN_BUTTON_COLOR,
+                            blurRadius: SMALL_BLUR_RADIUS,
+                          )
+                        ]),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        DayViewTopTicketHoleView(),
+                        Container(
+                            height: 100,
+                            child: DayDetailViewWidget(
+                              dateDetails: widget.configs,
+                              index: index,
+                              daysInWeek: widget.daysInWeek,
+                            ))
+                      ],
+                    ),
                   ),
-                ),
-                //Right circle cut
-                DayViewTicketRightCircleCut(),
-                //left circle cut
-                DayViewTicketLeftCircleCut(),
-              ],),
-              onTap: (){
+                  //Right circle cut
+                  DayViewTicketRightCircleCut(),
+                  //left circle cut
+                  DayViewTicketLeftCircleCut(),
+                ],
+              ),
+              onTap: () {
                 print(widget.daysInWeek[index]);
-                setState((){
+                setState(() {
                   // selectedIndex = widget.daysInWeek[index];
                   selectedIndex = index;
-                  CurrentAppState.selectedDateForTimeSlot = "${widget.configs?.getReleaseYear()}-${widget.configs?.getReleaseMonthInNumber()}-${widget.daysInWeek[index]}";
-                  widget.padcApiModel =PadcApiModelImpl();
-                  widget.padcApiModel.getCinemaAndShowtimeByDateFromDatabase(CurrentAppState.selectedDateForTimeSlot,CurrentAppState.userToken, ).listen((result){
+                  CurrentAppState.selectedDateForTimeSlot =
+                      "${widget.configs?.getReleaseYear()}-${widget.configs?.getReleaseMonthInNumber()}-${widget.daysInWeek[index]}";
+                  widget.padcApiModel = PadcApiModelImpl();
+                  widget.padcApiModel
+                      .getCinemaAndShowtimeByDateFromDatabase(
+                    CurrentAppState.selectedDateForTimeSlot,
+                    CurrentAppState.userToken,
+                  )
+                      .listen((result) {
                     (widget.root as Element).reassemble();
-                      widget.cinemasByDates = result ?? [];
-                      setState(() {
+                    widget.cinemasByDates = result ?? [];
+                    setState(() {
                       ChooseTimeCinema.cinemaByDateList = result ?? [];
-                      print("Dayview cinemaByDate :: ${ChooseTimeCinema.cinemaByDateList}");
-
-
-
+                      print(
+                          "Dayview cinemaByDate :: ${ChooseTimeCinema.cinemaByDateList}");
                     });
-                  }).onError((error){
+                  }).onError((error) {
                     print("Error from selecting and combinging :: $error");
                   });
-                  print("Current App State(Selected Date for Time Slot :: ${CurrentAppState.selectedDateForTimeSlot})");
-
-
+                  print(
+                      "Current App State(Selected Date for Time Slot :: ${CurrentAppState.selectedDateForTimeSlot})");
                 });
-
               },
             );
           }),
@@ -496,7 +536,11 @@ class DayDetailViewWidget extends StatelessWidget {
   int currentMonth = 0;
   int mutatedMonth = 0;
   List<int> daysInWeek;
-  DayDetailViewWidget({required this.dateDetails, required this.index,required this.daysInWeek});
+
+  DayDetailViewWidget(
+      {required this.dateDetails,
+      required this.index,
+      required this.daysInWeek});
 
   @override
   Widget build(BuildContext context) {
@@ -516,7 +560,9 @@ class DayDetailViewWidget extends StatelessWidget {
                 ),
                 InterFontTextWidget(
                   // dateDetails?.MonthInWord("$currentMonth") ?? "",
-                  index == 0 ? dateDetails?.MonthInWord("$currentMonth")?? "" : dateDetails?.MonthInWord("$mutatedMonth") ?? "",
+                  index == 0
+                      ? dateDetails?.MonthInWord("$currentMonth") ?? ""
+                      : dateDetails?.MonthInWord("$mutatedMonth") ?? "",
                   color: Colors.black,
                   fontSize: LARGE_FONT_SIZE,
                 ),
@@ -532,8 +578,6 @@ class DayDetailViewWidget extends StatelessWidget {
                 )
               ]);
   }
-
-
 }
 
 class DayViewTopTicketHoleView extends StatelessWidget {
@@ -553,5 +597,3 @@ class DayViewTopTicketHoleView extends StatelessWidget {
     );
   }
 }
-
-

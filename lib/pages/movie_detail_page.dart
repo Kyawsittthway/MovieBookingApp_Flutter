@@ -4,6 +4,8 @@ import 'package:movie_booking_app/common_widgets_view/button_with_circle_cuts.da
 import 'package:movie_booking_app/common_widgets_view/interfont_text_widget.dart';
 import 'package:movie_booking_app/common_widgets_view/size_box_h12.dart';
 import 'package:movie_booking_app/common_widgets_view/size_box_h30.dart';
+import 'package:movie_booking_app/config/config_values.dart';
+import 'package:movie_booking_app/config/environment_config.dart';
 import 'package:movie_booking_app/currentAppState.dart';
 import 'package:movie_booking_app/data.vos/models/movie_model_impl.dart';
 import 'package:movie_booking_app/network/api_constants.dart';
@@ -21,11 +23,9 @@ import '../resources/dimens.dart';
 import '../resources/strings.dart';
 
 class MovieDetailPage extends StatefulWidget {
-
   final int movieId;
+
   MovieDetailPage({required this.movieId});
-
-
 
   @override
   State<MovieDetailPage> createState() => _MovieDetailPageState();
@@ -42,31 +42,33 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
   MovieVO? movieDetails;
   List<CreditVO> actorList = [];
   List<CreditVO> creditList = [];
-  void initState(){
+
+  void initState() {
     super.initState();
 
     ///Movie Detail
-    movieModel.getMovieDetails(widget.movieId).then((details){
+    movieModel.getMovieDetails(widget.movieId).then((details) {
       setState(() {
         movieDetails = details;
-        genreList = movieDetails?.genres?.map((genre) => genre.name).toList() ?? genreList;
+        genreList = movieDetails?.genres?.map((genre) => genre.name).toList() ??
+            genreList;
       });
       print("Movie Detials :: ${details}");
-    }).catchError((error){
+    }).catchError((error) {
       print("The movie detail error ${error}");
     });
 
     ///Movie Detail Database
-    movieModel.getMovieDetailsFromDatabase(widget.movieId).then((details){
+    movieModel.getMovieDetailsFromDatabase(widget.movieId).then((details) {
       setState(() {
         movieDetails = details;
-        genreList = movieDetails?.genres?.map((genre) => genre.name).toList() ?? genreList;
+        genreList = movieDetails?.genres?.map((genre) => genre.name).toList() ??
+            genreList;
       });
       print("Movie Details From Database :: $details");
-    }).catchError((error){
+    }).catchError((error) {
       print("Error fetching movie detail from database");
     });
-
 
     /// Credits
     // movieModel.getCreditsByMovie(widget.movieId).then((credit){
@@ -77,172 +79,234 @@ class _MovieDetailPageState extends State<MovieDetailPage> {
     // }).catchError((error){print("Get actor error ${error}");});
 
     ///Credits from Database
-    movieModel.getCreditsByMovieFromDatabase(widget.movieId).listen((credit){
+    movieModel.getCreditsByMovieFromDatabase(widget.movieId).listen((credit) {
       setState(() {
-        if(credit?.isNotEmpty == true)
-          {
-            creditList = credit!;
-            actorList = credit.where((credit)=>credit.isActor()).toList();
-            print("Credits from db :: ${creditList}");
-            print("Credits from db(actor) :: ${actorList}");
-          }
-
+        if (credit?.isNotEmpty == true) {
+          creditList = credit!;
+          actorList = credit.where((credit) => credit.isActor()).toList();
+          print("Credits from db :: ${creditList}");
+          print("Credits from db(actor) :: ${actorList}");
+        }
       });
-    }).onError((error){print("Error fetching credits from database :: $error");});
-
+    }).onError((error) {
+      print("Error fetching credits from database :: $error");
+    });
   }
-
-
 
   @override
   Widget build(BuildContext context) {
-      return Scaffold(
+    return Scaffold(
       backgroundColor: PRIMARY_BACKGROUND_COLOR,
-      body: (movieDetails != null) ? Container(
-        width: MediaQuery.of(context).size.width,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            children: [
-
-              Container(
-                child: Stack(
-                  clipBehavior: Clip.none,
+      body: (movieDetails != null)
+          ? Container(
+              width: MediaQuery.of(context).size.width,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
                   children: [
-                    TrailerSection(inputPosterpath: movieDetails?.getFullBackDropPath() ?? "",),
-                    PosterView(posterPath: movieDetails?.getFullPosterPath() ?? "",),
-                    Positioned(
-                      height: MOVIE_DETAIL_POSTER_HEIGHT,
-                      width: MediaQuery.of(context).size.width -
-                          MOVIE_DETAIL_POSTER_WIDTH,
-                      top: MOVIE_DETAIL_POSTER_TOP_POSITION,
-                      left: MOVIE_DETAIL_POSTER_LEFT_POSITION,
-                      child: Container(
-                        height: MOVIE_DETAIL_POSTER_HEIGHT,
-                        width: MOVIE_DETAIL_POSTER_WIDTH,
-                        child: Container(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TitleAndRatingView(rating:movieDetails?.voteAverage , movieTitle: movieDetails?.title,),
-                              SizeBoxH12(),
-                              AvailableTypesView(),
-                              SizeBoxH12(),
-                              CustomChipView(genreList: genreList, chipHeight: MOVIE_DETAIL_GENRE_CHIP_VIEW_HEIGHT,chipWidth: MOVIE_DETAIL_GENRE_CHIP_VIEW_WIDTH,isCenter: true,),
-                              SizeBoxH30(),
-                            ],
+                    Container(
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          TrailerSection(
+                            inputPosterpath:
+                                movieDetails?.getFullBackDropPath() ?? "",
                           ),
-                        ),
+                          PosterView(
+                            posterPath: movieDetails?.getFullPosterPath() ?? "",
+                          ),
+                          Positioned(
+                            height: MOVIE_DETAIL_POSTER_HEIGHT,
+                            width: MediaQuery.of(context).size.width -
+                                MOVIE_DETAIL_POSTER_WIDTH,
+                            top: MOVIE_DETAIL_POSTER_TOP_POSITION,
+                            left: MOVIE_DETAIL_POSTER_LEFT_POSITION,
+                            child: Container(
+                              height: MOVIE_DETAIL_POSTER_HEIGHT,
+                              width: MOVIE_DETAIL_POSTER_WIDTH,
+                              child: Container(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    TitleAndRatingView(
+                                      rating: movieDetails?.voteAverage,
+                                      movieTitle: movieDetails?.title,
+                                    ),
+                                    SizeBoxH12(),
+                                    AvailableTypesView(),
+                                    SizeBoxH12(),
+                                    CustomChipView(
+                                      genreList: genreList,
+                                      chipHeight:
+                                          MOVIE_DETAIL_GENRE_CHIP_VIEW_HEIGHT,
+                                      chipWidth:
+                                          MOVIE_DETAIL_GENRE_CHIP_VIEW_WIDTH,
+                                      isCenter: true,
+                                    ),
+                                    SizeBoxH30(),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
+                    ),
+                    SizedBox(
+                      height: KILO_HEIGHT,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        MovieDetailBoardView(
+                          duration: movieDetails?.getDuration(),
+                          releaseDate: movieDetails?.getReleaseDate(),
+                        ),
+                      ],
+                    ),
+                    SizeBoxH30(),
+                    // Container(
+                    //   height: 154.0,
+                    //   width: 370.0,
+                    //   decoration: BoxDecoration(
+                    //       gradient: LinearGradient(colors: [
+                    //         MOVIE_DETAIL_REMINDER_GRADIENT_COLOR3,
+                    //         MOVIE_DETAIL_REMINDER_GRADIENT_COLOR2,
+                    //         MOVIE_DETAIL_REMINDER_GRADIENT_COLOR1,
+                    //       ]),
+                    //       borderRadius: BorderRadius.circular(BORDER_RADIUS_NORMAL)),
+                    //   child: ReminderView(),
+                    // ),
+                    ReminderViewSection(),
+                    SizeBoxH30(),
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      padding: EdgeInsets.symmetric(horizontal: SMALL_PADDING),
+                      child: InterFontTextWidget(
+                        MOVIE_DETIAL_STORLINE_HEADING_TEXT,
+                        fontWeight: FontWeight.w600,
+                        fontSize: SMALL_FONT_SIZE_14,
+                      ),
+                    ),
+                    SizeBoxH12(),
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: SMALL_PADDING),
+                      child: InterFontTextWidget(
+                        movieDetails?.overview ?? "",
+                        fontWeight: FontWeight.w500,
+                        fontSize: SMALL_FONT_SIZE_14,
+                        align: TextAlign.left,
+                      ),
+                    ),
+                    SizeBoxH30(),
+                    Container(
+                      alignment: Alignment.centerLeft,
+                      padding: EdgeInsets.symmetric(horizontal: SMALL_PADDING),
+                      child: InterFontTextWidget(
+                        MOVIE_DETAIL_CASTS_HEADING_TEXT,
+                        fontWeight: FontWeight.w600,
+                        fontSize: SMALL_FONT_SIZE_14,
+                      ),
+                    ),
+                    SizeBoxH12(),
+                    /// will return respective actor list view according to build flavour
+                    returnRespectiveActorView(actorList),
+
+                    SizedBox(
+                      height: MOVIE_DETAIL_SIZED_BOX_H45,
                     ),
                   ],
                 ),
               ),
-              SizedBox(
-                height: KILO_HEIGHT,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  MovieDetailBoardView(duration:movieDetails?.getDuration(), releaseDate:movieDetails?.getReleaseDate(),),
-                ],
-              ),
-              SizeBoxH30(),
-              // Container(
-              //   height: 154.0,
-              //   width: 370.0,
-              //   decoration: BoxDecoration(
-              //       gradient: LinearGradient(colors: [
-              //         MOVIE_DETAIL_REMINDER_GRADIENT_COLOR3,
-              //         MOVIE_DETAIL_REMINDER_GRADIENT_COLOR2,
-              //         MOVIE_DETAIL_REMINDER_GRADIENT_COLOR1,
-              //       ]),
-              //       borderRadius: BorderRadius.circular(BORDER_RADIUS_NORMAL)),
-              //   child: ReminderView(),
-              // ),
-              ReminderViewSection(),
-              SizeBoxH30(),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(horizontal: SMALL_PADDING),
-                child: InterFontTextWidget(
-                  MOVIE_DETIAL_STORLINE_HEADING_TEXT,
-                  fontWeight: FontWeight.w600,
-                  fontSize: SMALL_FONT_SIZE_14,
-                ),
-              ),
-              SizeBoxH12(),
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: SMALL_PADDING),
-                child: InterFontTextWidget(
-                  movieDetails?.overview ?? "",
-                  fontWeight: FontWeight.w500,
-                  fontSize: SMALL_FONT_SIZE_14,
-                  align: TextAlign.left,
-                ),
-              ),
-              SizeBoxH30(),
-              Container(
-                alignment: Alignment.centerLeft,
-                padding: EdgeInsets.symmetric(horizontal: SMALL_PADDING),
-                child: InterFontTextWidget(
-                  MOVIE_DETAIL_CASTS_HEADING_TEXT,
-                  fontWeight: FontWeight.w600,
-                  fontSize: SMALL_FONT_SIZE_14,
-                ),
-              ),
-              SizeBoxH12(),
-              Container(
-                height: KILO_HEIGHT_2X,
-                margin: EdgeInsets.symmetric(horizontal: SMALL_PADDING),
-                child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: actorList.length,
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (BuildContext context, int index) {
-                      return Container(
-                          padding: EdgeInsets.only(right: SMALL_PADDING),
-                          child: Column(children: [
-                            Container(
-                              height:KILO_HEIGHT,
-                              width: KILO_WIDTH,
-                              child: CircleAvatar(
-                                backgroundImage: NetworkImage(
-                                    actorList[index].getFullProfile() ?? ""),
-                              ),
-                            ),
-                            SizeBoxH12(),
-                            InterFontTextWidget(actorList[index].name,fontWeight: FontWeight.w500,fontSize: NORMAL_FONT_SIZE,)
-
-                          ]));
-                    }),
-              ),
-              SizedBox(
-                height: MOVIE_DETAIL_SIZED_BOX_H45,
-              ),
-            ],
-          ),
-        ),
-      ): Center(child: CircularProgressIndicator(),),
+            )
+          : Center(
+              child: CircularProgressIndicator(),
+            ),
       floatingActionButton: Visibility(
-        visible: !CurrentAppState.isNowShowing,
-        child: CircleCutButtonWidget(buttonName: MOVIE_DETAIL_CIRCLE_CUT_BUTTON_NAMME, onTapFunction: (){
-          CurrentAppState.receipt.movieName = movieDetails?.title ?? "";
-          CurrentAppState.movieId = movieDetails?.id ?? 0;
-          CurrentAppState.moviePoster = movieDetails?.getFullPosterPath() ?? "";
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => ChooseTimeCinema()),
-          );
-        }, inputColor: GREEN_BUTTON_COLOR,)
-      ),
+          visible: !CurrentAppState.isNowShowing,
+          child: CircleCutButtonWidget(
+            buttonName: MOVIE_DETAIL_CIRCLE_CUT_BUTTON_NAMME,
+            onTapFunction: () {
+              CurrentAppState.receipt.movieName = movieDetails?.title ?? "";
+              CurrentAppState.movieId = movieDetails?.id ?? 0;
+              CurrentAppState.moviePoster =
+                  movieDetails?.getFullPosterPath() ?? "";
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChooseTimeCinema()),
+              );
+            },
+            inputColor: GREEN_BUTTON_COLOR,
+          )),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }
 
-class ReminderViewSection extends StatelessWidget {
+returnRespectiveActorView(List<CreditVO> actorList) {
+  if ((ACTOR_LIST_STYLES[EnvironmentConfig.CONFIG_ACTOR_LIST_STYLE] ==
+      ActorListStyle.WrapActorList)) {
+    return Wrap(
+      spacing: MEDIUM_PADDING,
+      runSpacing: MEDIUM_PADDING,
+      children: actorList
+          .map((actor) => ActorViewItem(
+                actorName: actor.name,
+                actorImage: actor.getFullProfile() ?? "",
+              ))
+          .toList(),
+    );
+  } else {
+    return Container(
+      height: KILO_HEIGHT_2X,
+      margin: EdgeInsets.symmetric(horizontal: SMALL_PADDING),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: actorList.length,
+        scrollDirection: Axis.horizontal,
+        itemBuilder: (BuildContext context, int index) {
+          return ActorViewItem(
+            actorImage: actorList[index].getFullProfile() ?? "",
+            actorName: actorList[index].name,
+          );
+        },
+      ),
+    );
+  }
+}
 
+class ActorViewItem extends StatelessWidget {
+  const ActorViewItem({required this.actorImage, required this.actorName});
+
+  final String actorImage;
+  final String actorName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.only(right: SMALL_PADDING),
+      child: Column(
+        children: [
+          Container(
+            height: KILO_HEIGHT,
+            width: KILO_WIDTH,
+            child: CircleAvatar(
+              backgroundImage: NetworkImage(actorImage),
+            ),
+          ),
+          SizeBoxH12(),
+          InterFontTextWidget(
+            actorName,
+            fontWeight: FontWeight.w500,
+            fontSize: NORMAL_FONT_SIZE,
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class ReminderViewSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Visibility(
@@ -274,7 +338,6 @@ class ReminderView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
-
             children: [
               InterFontTextWidget("Releasing in 5 days"),
               SizeBoxH12(),
@@ -318,11 +381,8 @@ class MovieDetailBoardView extends StatelessWidget {
   final String? duration;
   final String? releaseDate;
 
-  MovieDetailBoardView({
-    required this.duration,
-    required this.releaseDate
-}
-      );
+  MovieDetailBoardView({required this.duration, required this.releaseDate});
+
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -435,13 +495,18 @@ class AvailableTypesView extends StatelessWidget {
 class TitleAndRatingView extends StatelessWidget {
   final String? movieTitle;
   final double? rating;
-  TitleAndRatingView({required this.movieTitle,required this.rating});
+
+  TitleAndRatingView({required this.movieTitle, required this.rating});
+
   @override
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.max,
       children: [
-        Container(child: InterFontTextWidget(movieTitle??""),width: 150,),
+        Container(
+          child: InterFontTextWidget(movieTitle ?? ""),
+          width: 150,
+        ),
         Padding(
           padding:
               EdgeInsets.only(right: SMALL_PADDING, left: SMALL_PADDING_2X),
@@ -466,7 +531,9 @@ class TitleAndRatingView extends StatelessWidget {
 
 class PosterView extends StatelessWidget {
   final String posterPath;
+
   PosterView({required this.posterPath});
+
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -477,8 +544,7 @@ class PosterView extends StatelessWidget {
       child: Container(
         height: MOVIE_DETAIL_POSTER_HEIGHT,
         width: MOVIE_DETAIL_POSTER_WIDTH,
-        child: Image.network(
-            posterPath),
+        child: Image.network(posterPath),
       ),
     );
   }
@@ -517,7 +583,9 @@ class PosterView extends StatelessWidget {
 
 class TrailerSection extends StatelessWidget {
   TrailerSection({required this.inputPosterpath});
+
   final String inputPosterpath;
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -545,7 +613,7 @@ class TrailerSection extends StatelessWidget {
           Align(
             alignment: Alignment.topLeft,
             child: Padding(
-              padding: EdgeInsets.only(top:MEDIUM_PADDING),
+              padding: EdgeInsets.only(top: MEDIUM_PADDING),
               child: IconButton(
                 onPressed: () {
                   Navigator.pop(context);
@@ -558,12 +626,12 @@ class TrailerSection extends StatelessWidget {
               ),
             ),
           ),
-
           Align(
             alignment: Alignment.topRight,
             child: Padding(
               padding: EdgeInsets.only(
-                  right: SMALL_PADDING,top:MOVIE_DETAIL_TOP_RIGHT_ICON_TOP_POSITION),
+                  right: SMALL_PADDING,
+                  top: MOVIE_DETAIL_TOP_RIGHT_ICON_TOP_POSITION),
               child: IconButton(
                 onPressed: () {},
                 icon: Icon(

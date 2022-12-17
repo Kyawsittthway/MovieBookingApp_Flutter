@@ -1,5 +1,9 @@
 import 'dart:ui';
 
+import 'package:movie_booking_app/config/environment_config.dart';
+
+import '../config/config_values.dart';
+
 const PRIMARY_BACKGROUND_COLOR  = Color.fromRGBO(19,19,19,1);
 const PRIMARY_BACKGROUND_COLOR_LOW_OPACITY  = Color.fromRGBO(19,19,19,0.5);
 const HOMEPAGE_APP_BAR_COLOR = Color.fromRGBO(17, 17, 17, 1);
@@ -8,7 +12,7 @@ const DIVIDER_COLOR1 =Color.fromRGBO (136, 136, 136, 1);
 const DOTTED_LINE_COLOR1 =Color.fromRGBO(68, 68, 68, 1);
 ///Login Page
 ///rgba(0, 255, 106, 1)
-const GREEN_BUTTON_COLOR = Color.fromRGBO(0, 255, 106, 1);
+dynamic GREEN_BUTTON_COLOR = colorSetter();
 const LOGIN_FOOTER_TEXT_COLOR = Color.fromRGBO(74, 74, 75, 1);
 
 //Location Page
@@ -74,3 +78,6 @@ const TICKET_CONFIRMATION_PAGE_GRADIENT_COLOR3 = Color.fromRGBO(39, 39, 39, 0.45
 const TICKET_CONFIRMATION_PAGE_GRADIENT_COLOR4 = Color.fromRGBO(51, 51, 51, 1);
 
 
+dynamic colorSetter(){
+    return THEME_COLORS[EnvironmentConfig.CONFIG_THEME_COLOR];
+}
